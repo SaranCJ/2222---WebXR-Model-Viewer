@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Model Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Include the model-viewer JavaScript library -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer@latest/dist/model-viewer.min.js"></script>
+  <!-- Add CSS styles for the model-viewer element -->
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+    }
+    model-viewer {
+      width: 100%;
+      height: 100vh;
+      --poster-color: transparent;
+    }
+    .button-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+    .model-button {
+      margin: 0 5px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  
+  <model-viewer
+    id="main-viewer"
+    src="2222_ Building_ 1.glb"
+    alt="3D Model"
+    ar
+    ar-modes="webxr scene-viewer quick-look"
+    camera-controls
+    background-color="#70BCD1">
+  </model-viewer>
+    
+  
+  <div class="button-container">
+    <button class="model-button" onclick="changeModel('2222_ Building_ 1.glb')">Model 1</button><button class="model-button" onclick="changeModel('2222_ Building_ 2.glb')">Model 2</button><button class="model-button" onclick="changeModel('2222_ Building_ 3.glb')">Model 3</button><button class="model-button" onclick="changeModel('2222_ Building_ 4.glb')">Model 4</button>
+  </div>
+    
+  <script>
+    
+function changeModel(newSrc) {
+    const viewer = document.getElementById('main-viewer');
+    viewer.src = newSrc;
+}
+    
+  </script>
+</body>
+</html>
