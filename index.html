@@ -1,17 +1,4 @@
-import os
-import sys
-import http.server
-import socketserver
-import threading
-import socket
-import shutil
-from tkinter import Tk
-from tkinter.filedialog import askopenfilenames
-import webbrowser
-import time
-
-def generate_html(glb_files):
-    html_content = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -21,21 +8,21 @@ def generate_html(glb_files):
   <script type="module" src="https://unpkg.com/@google/model-viewer@latest/dist/model-viewer.min.js"></script>
   <!-- Add CSS styles for the model-viewer element -->
   <style>
-    body {{
+    body {
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: #f0f0f0;
       overflow: hidden;
       transition: transform 0.5s ease; /* Smooth transition for zoom effect on the entire page */
-    }}
-    model-viewer {{
+    }
+    model-viewer {
       width: 100%;
       height: 100vh;
       --poster-color: transparent;
       display: block;
       position: relative;
-    }}
-    .button-container {{
+    }
+    .button-container {
       position: fixed;
       bottom: 70px; /* Moved up to avoid overlap with the AR icon */
       left: 50%;
@@ -46,15 +33,15 @@ def generate_html(glb_files):
       gap: 10px;
       max-width: 90%; /* Ensures buttons wrap on smaller screens */
       flex-wrap: wrap;
-    }}
-    .model-button {{
+    }
+    .model-button {
       padding: 10px 20px;
       font-size: 1em;
       cursor: pointer;
       display: inline-block;
-    }}
+    }
     /* Zoom button styling */
-    .zoom-button {{
+    .zoom-button {
       position: fixed;
       bottom: 20px;
       left: 20px;
@@ -66,60 +53,37 @@ def generate_html(glb_files):
       border: none;
       border-radius: 5px;
       z-index: 2;
-    }}
+    }
     /* Custom styling to move the AR button */
-    model-viewer::part(buttons) {{
+    model-viewer::part(buttons) {
       display: flex;
       justify-content: flex-end;
       position: absolute;
       top: 10px;
       right: 10px;
-    }}
+    }
   </style>
 </head>
 <body>
-  {model_viewer}
-  {button_container}
-  <button class="zoom-button" onclick="zoomEffect()">FitThePage</button>
-  <script>
-    {javascript}
-  </script>
-</body>
-</html>
-'''
-
-    # Get the first GLB file to display initially
-    initial_glb = os.path.basename(glb_files[0])
-
-    # Create the model-viewer element without auto-rotate
-    model_viewer = f'''
+  
   <model-viewer
     id="main-viewer"
-    src="{initial_glb}"
+    src="2222_ Building_ 1.glb"
     alt="3D Model"
     ar
     ar-modes="webxr scene-viewer quick-look"
     camera-controls
     background-color="#70BCD1">
   </model-viewer>
-    '''
-
-    # Generate buttons for each GLB file
-    buttons_html = ''
-    for idx, glb_file in enumerate(glb_files):
-        glb_name = os.path.basename(glb_file)
-        button_html = f'<button class="model-button" onclick="changeModel(\'{glb_name}\')">Model {idx+1}</button>'
-        buttons_html += button_html
-
-    # Create the button container
-    button_container = f'''
+    
+  
   <div class="button-container">
-    {buttons_html}
+    <button class="model-button" onclick="changeModel('2222_ Building_ 1.glb')">Model 1</button><button class="model-button" onclick="changeModel('2222_ Building_ 2.glb')">Model 2</button><button class="model-button" onclick="changeModel('2222_ Building_ 3.glb')">Model 3</button><button class="model-button" onclick="changeModel('2222_ Building_ 4.glb')">Model 4</button>
   </div>
-    '''
-
-    # JavaScript function to change the model and force a slight delay on load
-    javascript = '''
+    
+  <button class="zoom-button" onclick="zoomEffect()">FitThePage</button>
+  <script>
+    
 function changeModel(newSrc) {
     const viewer = document.getElementById('main-viewer');
     viewer.src = newSrc;
@@ -157,103 +121,7 @@ window.onload = function() {
     setTimeout(forceModelViewerUpdate, 500); // Add a short delay to reset the model-viewer src
     triggerViewportUpdate();
 }
-'''
 
-    # Format the HTML content with the generated components
-    html_content = html_content.format(
-        model_viewer=model_viewer,
-        button_container=button_container,
-        javascript=javascript
-    )
-
-    # Write the HTML content to index.html
-    with open('index.html', 'w', encoding='utf-8') as f:
-        f.write(html_content)
-    print("Generated 'index.html' with your models.")
-
-def start_server():
-    PORT = 8000
-    Handler = http.server.SimpleHTTPRequestHandler
-
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("\nServer stopped.")
-
-def main():
-    print("Welcome to the GLB Model Viewer Setup Script.")
-    print("Please select your GLB files in the file dialog that appears.\n")
-
-    # Use tkinter to open a file dialog
-    try:
-        # Initialize Tkinter and hide the root window
-        root = Tk()
-        root.withdraw()
-        root.attributes('-topmost', True)
-        # Open the file dialog
-        glb_files = askopenfilenames(title="Select GLB Files", filetypes=[("GLB Files", "*.glb")])
-        root.update()
-    except Exception as e:
-        print(f"Error with file dialog: {e}")
-        sys.exit(1)
-
-    glb_files = list(glb_files)  # Convert to a list
-
-    if not glb_files:
-        print("No GLB files selected. Exiting.")
-        sys.exit(0)
-
-    # Copy GLB files to the current directory
-    for glb_file in glb_files:
-        destination = os.path.basename(glb_file)
-        if not os.path.exists(destination):
-            try:
-                shutil.copy2(glb_file, destination)
-                print(f"Copied '{glb_file}' to '{destination}'.")
-            except Exception as e:
-                print(f"Error copying file: {e}")
-        else:
-            print(f"File '{destination}' already exists in the current directory.")
-
-    # Generate index.html
-    generate_html(glb_files)
-
-    # Start the server in a separate thread
-    server_thread = threading.Thread(target=start_server)
-    server_thread.daemon = True
-    server_thread.start()
-
-    # Wait a moment to ensure the server is up
-    time.sleep(1)
-
-    # Open the web browser
-    webbrowser.open("http://localhost:8000")
-
-    # Find the local IP address
-    try:
-        hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
-        # Alternative method to get the local IP address
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        local_ip = s.getsockname()[0]
-        s.close()
-    except:
-        local_ip = '127.0.0.1'
-
-    print(f"\nServing at port 8000")
-    print(f"Access the webpage on your computer at: http://localhost:8000")
-    print(f"Access the webpage on your mobile device at: http://{local_ip}:8000")
-    print("\nPress Ctrl+C to stop the server.")
-
-    # Keep the main thread alive
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\nExiting script.")
-        sys.exit(0)
-
-if __name__ == '__main__':
-    main()
+  </script>
+</body>
+</html>
