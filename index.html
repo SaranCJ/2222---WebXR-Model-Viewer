@@ -13,7 +13,6 @@
       font-family: Arial, sans-serif;
       background-color: #f0f0f0;
       overflow: hidden;
-      transition: transform 0.5s ease; /* Smooth transition for zoom effect on the entire page */
     }
     model-viewer {
       width: 100%;
@@ -40,8 +39,8 @@
       cursor: pointer;
       display: inline-block;
     }
-    /* Zoom button styling */
-    .zoom-button {
+    /* Pan button styling */
+    .pan-button {
       position: fixed;
       bottom: 20px;
       left: 20px;
@@ -81,7 +80,7 @@
     <button class="model-button" onclick="changeModel('2222_ Building_ 1.glb')">Model 1</button><button class="model-button" onclick="changeModel('2222_ Building_ 2.glb')">Model 2</button><button class="model-button" onclick="changeModel('2222_ Building_ 3.glb')">Model 3</button><button class="model-button" onclick="changeModel('2222_ Building_ 4.glb')">Model 4</button>
   </div>
     
-  <button class="zoom-button" onclick="zoomEffect()">FitThePage</button>
+  <button class="pan-button" onclick="panEffect()">GetARbutton</button>
   <script>
     
 function changeModel(newSrc) {
@@ -103,18 +102,15 @@ function triggerViewportUpdate() {
     window.scrollTo(0, 0);
 }
 
-// Function to apply zoom in and zoom out effect on the entire page
-function zoomEffect() {
-    const body = document.body;
-    body.style.transform = 'scale(1.2)'; // Zoom in to 1.2x scale
+// Function to create a pan effect from bottom to top and back
+function panEffect() {
+    // Scroll to the bottom first
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+    // After reaching the bottom, scroll back to the top
     setTimeout(() => {
-        body.style.transform = 'scale(1)'; // Return to normal after 0.5 seconds
-        // Reset the viewport to force mobile browsers to "fit" the page again
-        document.documentElement.style.width = '99.9%'; // Slightly change width to force a re-render
-        setTimeout(() => {
-            document.documentElement.style.width = '100%'; // Reset back to full width
-        }, 50);
-    }, 500);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 1000); // Wait 1 second to reach the bottom before panning back to the top
 }
 
 window.onload = function() {
